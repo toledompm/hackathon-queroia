@@ -2,7 +2,7 @@ import os
 import time
 import handlers.indexer as indexer
 import handlers.bucket as bucket
-import handlers.file as file
+import utils.file as file
 import oci
 from dotenv import load_dotenv
 
