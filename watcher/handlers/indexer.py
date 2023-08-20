@@ -43,6 +43,6 @@ class Indexer:
         if is_video:
             mp3_path = transcriptor.convert_mp4_to_mp3(filePath)
             transcript = transcriptor.transcription_mp3_to_text(mp3_path)
-            print(transcript)
+            # TODO: send transcript to model
 
         return

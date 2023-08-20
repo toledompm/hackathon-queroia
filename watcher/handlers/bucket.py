@@ -34,3 +34,11 @@ class Bucket:
                 ):
                     f.write(chunk)
         return
+
+    def upload_file(self, file_name: str, file_content: bytes) -> None:
+        """
+        upload_file uploads a file to the bucket
+        """
+        file_path = f"{self.prefix}/{file_name}"
+        self.cli.put_object(self.namespace, self.name, file_path, file_content)
+        return
