@@ -111,7 +111,7 @@ const PreviewLinkCard = ({
   if (type !== 'mp4') {
     finalLink = `invalidUrl(${linkFileName})`
   } else {
-    finalLink = `https://youtu.be/${id}t=${Math.trunc(start)}`
+    finalLink = `https://youtu.be/${id}?t=${Math.trunc(start)}`
   }
 
   return (
