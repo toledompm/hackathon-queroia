@@ -54,24 +54,32 @@ def transcription_mp3_to_text(mp3_path: str) -> list[dict[str, str | float]]:
     return total_transcript
 
 
-def parser_text(filePath: str) -> list[dict[str, str | float]]:
+def parser_text(file_path: str) -> list[dict[str, str | float]]:
     """
     parser text to input format
     """
-    save_path = filePath[: filePath.rfind("/")]
+    save_path = file_path[: file_path.rfind("/")]
     parsead_text = []
 
-    arq = open(filePath, "rb")
+    arq = open(file_path, "rb")
     text = arq.read().decode("utf-8")
     paragraph_regex = re.compile(r".+\n")
-    dfs = [
-        pd.DataFrame(
-            data={
-                "text": [batch.group()],
-                "start": [batch.start()],
-                "end": [batch.end()],
-            }
-        )
+    parsead_text = [
+        {
+            "text": [batch.group()],
+            "start": [batch.start()],
+            "end": [batch.end()],
+        }
         for batch in paragraph_regex.finditer(text)
     ]
-    return pd.concat(dfs, ignore_index=True)
+
+    indexes_small_batches = [idx for idx, batch in enumerate(parsead_text) if len(batch['text'][0]) < 50]
+    ok_batches = [idx for idx, batch in enumerate(parsead_text) if len(batch['text'][0]) >= 50]
+
+    for idx in indexes_small_batches:
+        idx_concat = idx+1 if idx+1 < len(parsead_text) else idx-1
+        parsead_text[idx_concat]['text'][0] += parsead_text[idx]['text'][0]
+
+    indexes_filtered = np.array(parsead_text)[list(set(ok_batches) - set(indexes_small_batches))]
+    dfs = [pd.DataFrame(data=dic) for dic in indexes_filtered]
+    return dfs
