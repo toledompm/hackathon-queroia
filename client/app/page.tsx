@@ -95,84 +95,25 @@ export default function Home() {
 const PreviewLinkCard = ({
   link,
   text,
+  start,
 }: {
   link: string;
   text: string;
-}) => (
-  <a target="_blank" rel="noopener noreferrer" href={link}>
+  start: number;
+}) => {
+  const linkFileName = link.split('/').pop() || '';
+
+  const videoLinksPerLinkFile = {
+    [linkFileName]: `invalidUrl(${linkFileName})`,
+    'matematica-enem.mp4': `https://youtu.be/MSZdhDBoXe0?t=${Math.trunc(start)}`,
+    '5 TA\u0303\u0093PICOS MAIS IMPORTANTES DE GEOGRAFIA PARA O ENEM | Prof. Leandro Almeida.mp4': `https://youtu.be/Z_Pb2hWneog?t=${Math.trunc(start)}`,
+  }
+
+  return (
+  <a target="_blank" rel="noopener noreferrer" href={videoLinksPerLinkFile[linkFileName]}>
     <div className="m-2">
       <p className="mb-5"> {text} </p>
-      <p className="text-xs text-gray-800 font-bold"> {link} </p>
+      <p className="text-xs text-gray-800 font-bold"> {videoLinksPerLinkFile[linkFileName]} </p>
     </div>
   </a>
-);
-
-// const searchApi = async (search: string) => {
-//   return [
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//     {
-//       link: 'https://google.com',
-//       text:
-//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-//     },
-//   ];
-// };
+)};
