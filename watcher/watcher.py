@@ -1,15 +1,14 @@
 import os
 import time
-import handlers.indexer as indexer
-import handlers.bucket as bucket
-import utils.file as file
-import oci
 from dotenv import load_dotenv
+from handlers.indexer import Indexer
+from handlers.bucket import Bucket
+from utils.file import create_tmp_dir, del_tmp_dir
+from utils.oci_bucket import create_oci_bucket
 
-
-def watch(b: bucket.Bucket, i: indexer.Indexer):
-    files = b.list_bucket()
-    files_to_index = i.get_unindexed_files(files)
+def watch(bucket: Bucket, indexer: Indexer):
+    files = bucket.list_bucket()
+    files_to_index = indexer.get_unindexed_files(files)
 
     if len(files_to_index) == 0:
         print("No files to index")
@@ -17,12 +16,12 @@ def watch(b: bucket.Bucket, i: indexer.Indexer):
 
     print(f"Indexing {len(files_to_index)} files")
 
-    tmp_file_dir = file.create_tmp_dir(b.prefix)
+    tmp_file_dir = create_tmp_dir(bucket.prefix)
 
-    b.download_files(files_to_index, tmp_file_dir)
-    i.execute(files_to_index, tmp_file_dir)
+    bucket.download_files(files_to_index, tmp_file_dir)
+    indexer.execute(files_to_index, tmp_file_dir)
 
-    file.del_tmp_dir(tmp_file_dir)
+    del_tmp_dir(tmp_file_dir)
 
     print("Indexing complete")
 
@@ -35,20 +34,12 @@ def main():
             float(os.environ["RECONCILIATION_INTERVAL_MINUTES"]) * 60
         )
 
-        config = oci.config.from_file()
-        oci_client = oci.object_storage.ObjectStorageClient(config)
+        bucket = create_oci_bucket()
 
-        b = bucket.Bucket(
-            oci_client,
-            os.environ["OCI_BUCKET_NAMESPACE"],
-            os.environ["OCI_BUCKET_NAME"],
-            os.environ["OCI_BUCKET_PREFIX"],
-        )
-
-        i = indexer.Indexer(os.environ["INDEX_FILE"])
+        indexer = Indexer(os.environ["INDEX_FILE"])
 
         while True:
-            watch(b, i)
+            watch(bucket, indexer)
             time.sleep(reconciliation_interval)
 
 

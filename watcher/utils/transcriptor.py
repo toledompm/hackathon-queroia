@@ -1,6 +1,7 @@
 import moviepy.editor as mp
 import openai
 import os
+import re
 from pydub import AudioSegment
 
 
@@ -49,5 +50,25 @@ def transcription_mp3_to_text(mp3_path: str) -> list[dict[str, str | float]]:
         total_transcript += __format_transcript__(transcript["segments"], start / 1000)
         start += batch_in_milliseconds
         end += batch_in_milliseconds
-
     return total_transcript
+
+
+def parser_text(filePath: str) -> list[dict[str, str | float]]:
+    """
+    parser text to input format
+    """
+    save_path = filePath[: filePath.rfind("/")]
+    parsead_text = []
+
+    arq = open(filePath, "rb")
+    text = arq.read().decode("utf-8")
+    paragraph_regex = re.compile(r".+\n")
+    for paragraph in paragraph_regex.finditer(text):
+        parsead_text += [
+            {
+                "start": paragraph.start(),
+                "end": paragraph.end(),
+                "text": paragraph.group(),
+            }
+        ]
+    return parsead_text
