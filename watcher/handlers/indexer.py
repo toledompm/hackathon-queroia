@@ -17,7 +17,7 @@ class Indexer:
     def execute(self, files: list[str], tmp_file_dir: str):
         for file in files:
             try:
-                self.__index(f"{tmp_file_dir}/{file}")
+                self.__index__(f"{tmp_file_dir}/{file}")
             except Exception as e:
                 print(f"Failed to index {file}: {e}")
                 continue
@@ -26,5 +26,5 @@ class Indexer:
             json.dump(self.index, f)
         return
 
-    def __index(self, filePath: str):
+    def __index__(self, filePath: str):
         return
