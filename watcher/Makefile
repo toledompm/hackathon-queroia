@@ -8,4 +8,4 @@ start-watcher:
 
 .PHONY: start-api
 start-api:
-	python3 -m uvicorn api:app
+	python3 -m uvicorn api:app --reload

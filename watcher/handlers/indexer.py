@@ -9,19 +9,22 @@ import utils.transcriptor as transcriptor
 
 
 class Indexer:
-    def __init__(self, indexFile: str, db: InMemoryDB) -> None:
+    def __init__(
+        self, indexFile: str, db: InMemoryDB, embeddingModel: EmbeddingModel
+    ) -> None:
         """
         Indexer is the class that handles file indexing.
         It keeps track of which files have been indexed in a json file, and only indexes files that are not in the index.
         """
         self.indexFile = indexFile
+        self.embeddingModdel = embeddingModel
+        self.db = db
         try:
             index = json.load(open(indexFile))
         except FileNotFoundError:
             index = {}
 
         self.index = index
-        self.db = db
 
     def get_unindexed_files(self, files: list[str]) -> list[str]:
         """
@@ -53,6 +56,8 @@ class Indexer:
             transcript = transcriptor.parser_text(filePath)
         else:
             return
-        transcript['embedding'] = transcript.text.apply(EmbeddingModel().get_embedding)
+        transcript["embedding"] = transcript.text.apply(
+            self.embeddingModdel.get_embedding
+        )
         self.db.insert(transcript)
         return

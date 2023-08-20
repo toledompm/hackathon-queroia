@@ -64,5 +64,14 @@ def parser_text(filePath: str) -> list[dict[str, str | float]]:
     arq = open(filePath, "rb")
     text = arq.read().decode("utf-8")
     paragraph_regex = re.compile(r".+\n")
-    dfs = [pd.DataFrame(data={'text': [batch.group()], 'start': [batch.start()], 'end': [batch.end()]}) for batch in paragraph_regex.finditer(text)]
+    dfs = [
+        pd.DataFrame(
+            data={
+                "text": [batch.group()],
+                "start": [batch.start()],
+                "end": [batch.end()],
+            }
+        )
+        for batch in paragraph_regex.finditer(text)
+    ]
     return pd.concat(dfs, ignore_index=True)
