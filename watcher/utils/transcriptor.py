@@ -78,21 +78,23 @@ def __format_transcript__(
     ]
 
 
-def __parsed_data_to_df__(data: list[dict[str, any]]) -> pd.DataFrame:
+def parser_text(filePath: str) -> list[dict[str, str | float]]:
     """
-    parsed_data_to_df converts the parsed data to a dataframe
+    parser text to input format
     """
-    indexes_small_batches = [
-        idx for idx, batch in enumerate(data) if len(batch["text"][0]) < 20
-    ]
-    ok_batches = [idx for idx, batch in enumerate(data) if len(batch["text"][0]) >= 20]
+    save_path = filePath[: filePath.rfind("/")]
 
-    for idx in indexes_small_batches:
-        idx_concat = idx + 1 if idx + 1 < len(data) else idx - 1
-        data[idx_concat]["text"][0] += data[idx]["text"][0]
-
-    indexes_filtered = np.array(data)[
-        list(set(ok_batches) - set(indexes_small_batches))
+    arq = open(filePath, "rb")
+    text = arq.read().decode("utf-8")
+    paragraph_regex = re.compile(r".+\n")
+    dfs = [
+        pd.DataFrame(
+            data={
+                "text": [batch.group()],
+                "start": [batch.start()],
+                "end": [batch.end()],
+            }
+        )
+        for batch in paragraph_regex.finditer(text)
     ]
-    dfs = [pd.DataFrame(data=dic) for dic in indexes_filtered]
     return pd.concat(dfs, ignore_index=True)
