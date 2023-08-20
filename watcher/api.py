@@ -37,7 +37,7 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/api")
 async def search(query: str = ""):
     if query == "":
         return {"message": "No query provided"}
@@ -50,7 +50,7 @@ async def search(query: str = ""):
     return {"results": res}
 
 
-@app.post("/")
+@app.post("/api")
 async def upload(file: UploadFile = File(...)):
     try:
         contents = file.file.read()
