@@ -1,10 +1,15 @@
 import json
 
+from model.embedding_model import EmbeddingModel
+
+from database.in_memory import InMemoryDB
+import traceback
+
 import utils.transcriptor as transcriptor
 
 
 class Indexer:
-    def __init__(self, indexFile: str) -> None:
+    def __init__(self, indexFile: str, db: InMemoryDB) -> None:
         """
         Indexer is the class that handles file indexing.
         It keeps track of which files have been indexed in a json file, and only indexes files that are not in the index.
@@ -16,6 +21,7 @@ class Indexer:
             index = {}
 
         self.index = index
+        self.db = db
 
     def get_unindexed_files(self, files: list[str]) -> list[str]:
         """
@@ -32,6 +38,7 @@ class Indexer:
                 self.__index__(f"{tmp_file_dir}/{file}")
             except Exception as e:
                 print(f"Failed to index {file}: {e}")
+                traceback.print_exc()
                 continue
             self.index[file] = True
         with open(self.indexFile, "w") as f:
@@ -44,5 +51,8 @@ class Indexer:
             transcript = transcriptor.transcription_mp3_to_text(mp3_path)
         elif filePath.endswith(".txt"):
             transcript = transcriptor.parser_text(filePath)
-        print(transcript)
+        else:
+            return
+        transcript['embedding'] = transcript.text.apply(EmbeddingModel().get_embedding)
+        self.db.insert(transcript)
         return

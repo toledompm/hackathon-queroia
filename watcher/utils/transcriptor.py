@@ -3,6 +3,7 @@ import openai
 import os
 import re
 from pydub import AudioSegment
+import pandas as pd
 
 
 def __format_transcript__(segments: list[dict[str, str | float]], offset: int):
@@ -63,12 +64,5 @@ def parser_text(filePath: str) -> list[dict[str, str | float]]:
     arq = open(filePath, "rb")
     text = arq.read().decode("utf-8")
     paragraph_regex = re.compile(r".+\n")
-    for paragraph in paragraph_regex.finditer(text):
-        parsead_text += [
-            {
-                "start": paragraph.start(),
-                "end": paragraph.end(),
-                "text": paragraph.group(),
-            }
-        ]
-    return parsead_text
+    dfs = [pd.DataFrame(data={'text': [batch.group()], 'start': [batch.start()], 'end': [batch.end()]}) for batch in paragraph_regex.finditer(text)]
+    return pd.concat(dfs, ignore_index=True)
