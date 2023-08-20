@@ -39,10 +39,10 @@ class Indexer:
         return
 
     def __index__(self, filePath: str) -> None:
-        is_video = filePath.endswith(".mp4")
-        if is_video:
+        if filePath.endswith(".mp4"):
             mp3_path = transcriptor.convert_mp4_to_mp3(filePath)
             transcript = transcriptor.transcription_mp3_to_text(mp3_path)
-            # TODO: send transcript to model
-
+        elif filePath.endswith(".txt"):
+            transcript = transcriptor.parser_text(filePath)
+        print(transcript)
         return
