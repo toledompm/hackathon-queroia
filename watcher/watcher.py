@@ -33,7 +33,7 @@ def main():
     if __name__ == "__main__":
         load_dotenv()
 
-        db = InMemoryDB()
+        db = InMemoryDB("./tmp/data.csv")
 
         reconciliation_interval = (
             float(os.environ["RECONCILIATION_INTERVAL_MINUTES"]) * 60
@@ -45,11 +45,6 @@ def main():
 
         while True:
             watch(bucket, indexer)
-
-            data = db.get()
-            embeddings = data.embedding.apply(np.array)
-            indexes = EmbeddingModel().search("maias", embeddings)
-            print(data.iloc[indexes])
-
+            print(db.get())
             time.sleep(reconciliation_interval)
 main()
