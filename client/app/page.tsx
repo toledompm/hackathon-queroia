@@ -112,7 +112,7 @@ const PreviewLinkCard = ({
   return (
   <a target="_blank" rel="noopener noreferrer" href={videoLinksPerLinkFile[linkFileName]}>
     <div className="m-2">
-      <p className="mb-5"> {text} </p>
+      <p className="mb-5"> {`..."${text}"...`} </p>
       <p className="text-xs text-gray-800 font-bold"> {videoLinksPerLinkFile[linkFileName]} </p>
     </div>
   </a>

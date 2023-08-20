@@ -63,7 +63,6 @@ class Indexer:
 
         print(f"Indexing {filePath}")
 
-        print(transcript.text)
 
         transcript["embedding"] = transcript.text.apply(
             self.embeddingModdel.get_embedding
