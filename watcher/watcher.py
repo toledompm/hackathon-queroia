@@ -1,10 +1,13 @@
 import os
 import time
+import numpy as np
 from dotenv import load_dotenv
 from handlers.indexer import Indexer
 from handlers.bucket import Bucket
 from utils.file import create_tmp_dir, del_tmp_dir
 from utils.oci_bucket import create_oci_bucket
+from database.in_memory import InMemoryDB
+from model.embedding_model import EmbeddingModel
 
 def watch(bucket: Bucket, indexer: Indexer):
     files = bucket.list_bucket()
@@ -30,17 +33,23 @@ def main():
     if __name__ == "__main__":
         load_dotenv()
 
+        db = InMemoryDB()
+
         reconciliation_interval = (
             float(os.environ["RECONCILIATION_INTERVAL_MINUTES"]) * 60
         )
 
         bucket = create_oci_bucket()
 
-        indexer = Indexer(os.environ["INDEX_FILE"])
+        indexer = Indexer(os.environ["INDEX_FILE"], db)
 
         while True:
             watch(bucket, indexer)
+
+            data = db.get()
+            embeddings = data.embedding.apply(np.array)
+            indexes = EmbeddingModel().search("maias", embeddings)
+            print(data.iloc[indexes])
+
             time.sleep(reconciliation_interval)
-
-
 main()
