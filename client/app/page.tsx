@@ -102,18 +102,20 @@ const PreviewLinkCard = ({
   start: number;
 }) => {
   const linkFileName = link.split('/').pop() || '';
+  const idType = linkFileName.split('.')
+  const id = idType[0]
+  const type = idType[1]
 
   const videoLinksPerLinkFile = {
-    [linkFileName]: `invalidUrl(${linkFileName})`,
-    'matematica-enem.mp4': `https://youtu.be/MSZdhDBoXe0?t=${Math.trunc(start)}`,
-    '5 TA\u0303\u0093PICOS MAIS IMPORTANTES DE GEOGRAFIA PARA O ENEM | Prof. Leandro Almeida.mp4': `https://youtu.be/Z_Pb2hWneog?t=${Math.trunc(start)}`,
+    'mp4': `https://youtu.be/${id}t=${Math.trunc(start)}`,
+    'txt': `invalidUrl(${linkFileName})`,
   }
 
   return (
-  <a target="_blank" rel="noopener noreferrer" href={videoLinksPerLinkFile[linkFileName]}>
+  <a target="_blank" rel="noopener noreferrer" href={videoLinksPerLinkFile[type]}>
     <div className="m-2">
-      <p className="mb-5"> {`..."${text}"...`} </p>
-      <p className="text-xs text-gray-800 font-bold"> {videoLinksPerLinkFile[linkFileName]} </p>
+      <p className="mb-5"> {text} </p>
+      <p className="text-xs text-gray-800 font-bold"> {videoLinksPerLinkFile[type]} </p>
     </div>
   </a>
 )};

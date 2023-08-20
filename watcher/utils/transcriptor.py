@@ -99,4 +99,9 @@ def parser_text(filePath: str) -> list[dict[str, str | float]]:
         )
         for batch in paragraph_regex.finditer(text)
     ]
-    return pd.concat(dfs, ignore_index=True)
+    return remove_small_batches(pd.concat(dfs, ignore_index=True))
+
+def remove_small_batches(df):
+    texts = df['text']
+    indexes_small_batches = [idx for idx, text in enumerate(texts) if len(text) > 20]
+    return df.iloc[indexes_small_batches]
