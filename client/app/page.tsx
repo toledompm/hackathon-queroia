@@ -8,27 +8,28 @@ import {
 } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload } from '@fortawesome/free-solid-svg-icons';
-import { upload } from '@/utils/apiService';
+import { upload, search } from '@/utils/apiService';
 
 export default function Home() {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<
-    { link: string; previewText: string }[]
+    { link: string; text: string, start: number, end: number, }[]
   >([]);
 
   const handleSearchChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setSearch(event.target.value);
+    setQuery(event.target.value);
   };
 
-  const handleSearchKeyDown: KeyboardEventHandler<HTMLInputElement> = (
+  const handleSearchKeyDown: KeyboardEventHandler<HTMLInputElement> = async (
     event,
   ) => {
     if (event.key !== 'Enter') return;
 
-    searchApi(search).then((results) => {
-      setResults(results);
-    });
+    const res = await search(query);
+    console.log(res);
+    if (!res) return;
+    setResults(res);
   };
 
   const handleFileUploadClick = () => {
@@ -52,9 +53,10 @@ export default function Home() {
 
   return (
     <main className="font-mono flex flex-col h-screen antialiased">
-      <div className="text-gray-800 sm:w-2/3 m-auto mb-4">
+      <div className="sm:w-2/3 m-auto mb-4 mt-20">
+        <h1 className="text-4xl font-bold text-gray-200">Search</h1>
         <input
-          className="w-full text-2xl p-4 focus:outline-none bg-gray-200 rounded-lg"
+          className="w-full text-gray-800 text-2xl p-4 mt-5 focus:outline-none bg-gray-200 rounded-lg"
           type="text"
           onChange={handleSearchChange}
           onKeyDown={handleSearchKeyDown}
@@ -92,85 +94,85 @@ export default function Home() {
 
 const PreviewLinkCard = ({
   link,
-  previewText,
+  text,
 }: {
   link: string;
-  previewText: string;
+  text: string;
 }) => (
   <a target="_blank" rel="noopener noreferrer" href={link}>
     <div className="m-2">
-      <p className="mb-5"> {previewText} </p>
+      <p className="mb-5"> {text} </p>
       <p className="text-xs text-gray-800 font-bold"> {link} </p>
     </div>
   </a>
 );
 
-const searchApi = async (search: string) => {
-  return [
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-    {
-      link: 'https://google.com',
-      previewText:
-        'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
-    },
-  ];
-};
+// const searchApi = async (search: string) => {
+//   return [
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//     {
+//       link: 'https://google.com',
+//       text:
+//         'This is a long paragraph that the api matches to the search query, really long paragraph, really really long paragraph, help me out copilot comon',
+//     },
+//   ];
+// };

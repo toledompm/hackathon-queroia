@@ -7,19 +7,6 @@ from pydub import AudioSegment
 import pandas as pd
 
 
-def __format_transcript__(
-    segments: list[dict[str, str | float]], offset: int
-) -> list[dict[str, any]]:
-    return [
-        {
-            "start": segment["start"] + offset,
-            "end": segment["end"] + offset,
-            "text": segment["text"],
-        }
-        for segment in segments
-    ]
-
-
 def convert_mp4_to_mp3(video_path: str) -> str:
     """
     convert_mp4_to_mp3 creates a mp3 file from a mp4 clip and returns the path to the mp3 file
@@ -78,14 +65,27 @@ def parser_text(file_path: str) -> pd.DataFrame:
     return __parsed_data_to_df__(parsed_text)
 
 
+def __format_transcript__(
+    segments: list[dict[str, str | float]], offset: int
+) -> list[dict[str, list[any]]]:
+    return [
+        {
+            "start": [segment["start"] + offset],
+            "end": [segment["end"] + offset],
+            "text": [segment["text"]],
+        }
+        for segment in segments
+    ]
+
+
 def __parsed_data_to_df__(data: list[dict[str, any]]) -> pd.DataFrame:
     """
     parsed_data_to_df converts the parsed data to a dataframe
     """
     indexes_small_batches = [
-        idx for idx, batch in enumerate(data) if len(batch["text"][0]) < 50
+        idx for idx, batch in enumerate(data) if len(batch["text"][0]) < 20
     ]
-    ok_batches = [idx for idx, batch in enumerate(data) if len(batch["text"][0]) >= 50]
+    ok_batches = [idx for idx, batch in enumerate(data) if len(batch["text"][0]) >= 20]
 
     for idx in indexes_small_batches:
         idx_concat = idx + 1 if idx + 1 < len(data) else idx - 1

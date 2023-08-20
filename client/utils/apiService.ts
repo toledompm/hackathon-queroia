@@ -1,7 +1,12 @@
-export const search = async (query: string) => {
-  const response = await fetch(`http://localhost:8000/?q=${query}`);
+export const search = async (query: string): Promise<{
+  start: number;
+  end: number;
+  text: string;
+  link: string;
+}[]> => {
+  const response = await fetch(`http://localhost:8000/?query=${query}`);
   const data = await response.json();
-  return data;
+  return data.results;
 };
 
 export const upload = async (file: File) => {
