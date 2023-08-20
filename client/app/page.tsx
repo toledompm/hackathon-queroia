@@ -106,16 +106,19 @@ const PreviewLinkCard = ({
   const id = idType[0]
   const type = idType[1]
 
-  const videoLinksPerLinkFile = {
-    'mp4': `https://youtu.be/${id}t=${Math.trunc(start)}`,
-    'txt': `invalidUrl(${linkFileName})`,
+  let finalLink = ''
+
+  if (type !== 'mp4') {
+    finalLink = `invalidUrl(${linkFileName})`
+  } else {
+    finalLink = `https://youtu.be/${id}t=${Math.trunc(start)}`
   }
 
   return (
-  <a target="_blank" rel="noopener noreferrer" href={videoLinksPerLinkFile[type]}>
+  <a target="_blank" rel="noopener noreferrer" href={finalLink}>
     <div className="m-2">
       <p className="mb-5"> {text} </p>
-      <p className="text-xs text-gray-800 font-bold"> {videoLinksPerLinkFile[type]} </p>
+      <p className="text-xs text-gray-800 font-bold"> {finalLink} </p>
     </div>
   </a>
 )};
