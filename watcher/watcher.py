@@ -36,10 +36,10 @@ def main():
         )
 
         config = oci.config.from_file()
-        ociClient = oci.object_storage.ObjectStorageClient(config)
+        oci_client = oci.object_storage.ObjectStorageClient(config)
 
         b = bucket.Bucket(
-            ociClient,
+            oci_client,
             os.environ["OCI_BUCKET_NAMESPACE"],
             os.environ["OCI_BUCKET_NAME"],
             os.environ["OCI_BUCKET_PREFIX"],

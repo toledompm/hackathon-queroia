@@ -8,18 +8,24 @@ class Bucket:
         bucket_namespace: str,
         bucket_name: str,
         prefix: str,
-    ):
+    ) -> None:
         self.cli = cli
         self.namespace = bucket_namespace
         self.name = bucket_name
         self.prefix = prefix
 
     def list_bucket(self) -> list[str]:
+        """
+        list_bucket returns a list of all files in the bucket
+        """
         all_files = self.cli.list_objects(self.namespace, self.name, prefix=self.prefix)
 
         return [obj.name for obj in all_files.data.objects]
 
-    def download_files(self, files: list[str], tmp_file_dir: str):
+    def download_files(self, files: list[str], tmp_file_dir: str) -> None:
+        """
+        download_files downloads a list of files from the bucket to a temporary directory
+        """
         for file in files:
             response = self.cli.get_object(self.namespace, self.name, file)
             with open(f"{tmp_file_dir}/{file}", "wb") as f:

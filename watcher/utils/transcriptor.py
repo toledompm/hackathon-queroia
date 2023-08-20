@@ -4,26 +4,41 @@ import os
 from pydub import AudioSegment
 
 
-def __format_transcript__(segments):
+def __format_transcript__(segments: list[dict[str, str | float]], offset: int):
     return [
-        {"start": segment["start"], "end": segment["end"], "text": segment["text"]}
+        {
+            "start": segment["start"] + offset,
+            "end": segment["end"] + offset,
+            "text": segment["text"],
+        }
         for segment in segments
     ]
 
 
-def convert_mp4_to_mp3(video_path, save_path):
+def convert_mp4_to_mp3(video_path: str) -> str:
+    """
+    convert_mp4_to_mp3 creates a mp3 file from a mp4 clip and returns the path to the mp3 file
+    """
+    save_path = video_path[: video_path.rfind("/")]
+
+    audio_clip_path = f"{save_path}/{os.urandom(16).hex()}.mp3"
     clip = mp.VideoFileClip(video_path).subclip()
-    clip.audio.write_audiofile(f"{save_path}/converted_audio.mp3")
-    return "converted_audio.mp3"
+    clip.audio.write_audiofile(audio_clip_path)
+    return audio_clip_path
 
 
-def transcription_mp3_to_text(mp3_path, save_path):
-    batch_in_minutes = 1000 * 60 * 10  # 1000 miliseconds * 60 seconds * 10 minutes
+def transcription_mp3_to_text(mp3_path: str) -> list[dict[str, str | float]]:
+    """
+    transcription_mp3_to_text transcribes a mp3 file to text using OpenAI's API
+    """
+    save_path = mp3_path[: mp3_path.rfind("/")]
+
+    batch_in_milliseconds = 1000 * 60 * 10  # 1000 miliseconds * 60 seconds * 10 minutes
     start = 0
-    end = batch_in_minutes
+    end = batch_in_milliseconds
     total_transcript = []
 
-    song = AudioSegment.from_mp3(f"{save_path}/{mp3_path}")
+    song = AudioSegment.from_mp3(mp3_path)
     while start < len(song):
         random_mp3_file_name = f"{save_path}/{os.urandom(16).hex()}.mp3"
         song[start:end].export(random_mp3_file_name, format="mp3")
@@ -31,18 +46,8 @@ def transcription_mp3_to_text(mp3_path, save_path):
         transcript = openai.Audio.transcribe(
             file=arq, model="whisper-1", response_format="verbose_json", language="pt"
         )
-        total_transcript += __format_transcript__(transcript["segments"])
-        start += batch_in_minutes
-        end += batch_in_minutes
+        total_transcript += __format_transcript__(transcript["segments"], start / 1000)
+        start += batch_in_milliseconds
+        end += batch_in_milliseconds
 
     return total_transcript
-
-
-video_path = "../../../sol.mp4"
-save_path = "../../../temp"
-path = f"{save_path}/{video_path}"
-
-mp3_path = convert_mp4_to_mp3(video_path, save_path)
-total_transcript = transcription_mp3_to_text(mp3_path, save_path)
-
-print(total_transcript)
