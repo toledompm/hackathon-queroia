@@ -50,13 +50,21 @@ class Indexer:
 
     def __index__(self, filePath: str) -> None:
         if filePath.endswith(".mp4"):
+            print(f"Converting {filePath} to mp3")
             mp3_path = transcriptor.convert_mp4_to_mp3(filePath)
+            print(f"Transcribing {mp3_path}")
             transcript = transcriptor.transcription_mp3_to_text(mp3_path)
         elif filePath.endswith(".txt"):
+            print(f"Parsing {filePath}")
             transcript = transcriptor.parser_text(filePath)
         else:
             print(f"File {filePath} is not a valid file type")
             return
+
+        print(f"Indexing {filePath}")
+
+        print(transcript.text)
+
         transcript["embedding"] = transcript.text.apply(
             self.embeddingModdel.get_embedding
         )

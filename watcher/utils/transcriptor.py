@@ -1,5 +1,4 @@
 import moviepy.editor as mp
-import numpy as np
 import openai
 import os
 import re
@@ -14,8 +13,8 @@ def convert_mp4_to_mp3(video_path: str) -> str:
     save_path = video_path[: video_path.rfind("/")]
 
     audio_clip_path = f"{save_path}/{os.urandom(16).hex()}.mp3"
-    clip = mp.VideoFileClip(video_path).subclip()
-    clip.audio.write_audiofile(audio_clip_path)
+    clip = mp.VideoFileClip(video_path, verbose=False)
+    clip.audio.write_audiofile(audio_clip_path, verbose=False)
     return audio_clip_path
 
 
@@ -36,53 +35,56 @@ def transcription_mp3_to_text(mp3_path: str) -> list[pd.DataFrame]:
         song[start:end].export(random_mp3_file_name, format="mp3")
         arq = open(random_mp3_file_name, "rb")
         transcript = openai.Audio.transcribe(
-            file=arq, model="whisper-1", response_format="verbose_json", language="pt"
+            file=arq,
+            model="whisper-1",
+            response_format="verbose_json",
+            language="pt",
         )
         total_transcript += __format_transcript__(transcript["segments"], start / 1000)
         start += batch_in_milliseconds
         end += batch_in_milliseconds
-    return __parsed_data_to_df__(total_transcript)
 
-
-def parser_text(file_path: str) -> pd.DataFrame:
-    """
-    parser text to input format
-    """
-    parsed_text = []
-
-    arq = open(file_path, "rb")
-    text = arq.read().decode("utf-8")
-    paragraph_regex = re.compile(r".+\n")
-    parsed_text = [
-        {
-            "text": [batch.group()],
-            "start": [batch.start()],
-            "end": [batch.end()],
-        }
-        for batch in paragraph_regex.finditer(text)
-    ]
-
-    return __parsed_data_to_df__(parsed_text)
+    return pd.concat(
+        [
+            pd.DataFrame(
+                data={
+                    "text": [segment["text"]],
+                    "start": [segment["start"]],
+                    "end": [segment["end"]],
+                }
+            )
+            for segment in total_transcript
+        ],
+        ignore_index=True,
+    )
 
 
 def __format_transcript__(
     segments: list[dict[str, str | float]], offset: int
 ) -> list[dict[str, list[any]]]:
-    return [
-        {
-            "start": [segment["start"] + offset],
-            "end": [segment["end"] + offset],
-            "text": [segment["text"]],
-        }
-        for segment in segments
-    ]
+    merge_every = 8
+    res = []
+    for i in range(0, len(segments), merge_every):
+        upper_bound = (
+            i + merge_every if i + merge_every < len(segments) else len(segments)
+        )
+        upper_bound = upper_bound - 1
+        res.append(
+            {
+                "start": segments[i]["start"] + offset,
+                "end": segments[upper_bound]["end"] + offset,
+                "text": " ".join(
+                    [segment["text"] for segment in segments[i:upper_bound]]
+                ),
+            }
+        )
+    return res
 
 
 def parser_text(filePath: str) -> list[dict[str, str | float]]:
     """
     parser text to input format
     """
-    save_path = filePath[: filePath.rfind("/")]
 
     arq = open(filePath, "rb")
     text = arq.read().decode("utf-8")
