@@ -1,10 +1,10 @@
-# Título do Projeto
+# EduFinder
 
-Descrição curta ou tagline do projeto.
+Buscador semântico de conteúdo personalizado.
 
 ## Visão Geral
 
-Uma descrição mais detalhada do projeto e sua finalidade.
+Visa adicionar indexs a videos e arquivos de textos que foram adicionados a plataforma afim de encontrar o pedaço do video ou trecho do texto em que melhor se encaixa na pesquisa realizada.
 
 ## Instruções de Instalação
 
@@ -29,9 +29,8 @@ Instruções sobre como usar o projeto depois de instalado.
 
 - Python 3.
 - APY_KEY da openia
-- ...
-
-Para instalar as dependencias execute `pip install -r requirements.txt`
+- Execute pip install --upgrade pip
+- Para instalar as dependencias execute `pip install -r requirements.txt`
 
 ## Autores
 
@@ -43,9 +42,3 @@ Para instalar as dependencias execute `pip install -r requirements.txt`
 ## Links Adicionais
 
 - Site Oficial: https://seuprojeto.com
-- Documentação: https://seuprojeto.com/docs
-
-## Capturas de Tela
-
-Captura de Tela 1: screenshots/screenshot1.png
-Captura de Tela 2: screenshots/screenshot2.png
