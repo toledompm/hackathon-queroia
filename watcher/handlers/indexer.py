@@ -55,9 +55,13 @@ class Indexer:
         elif filePath.endswith(".txt"):
             transcript = transcriptor.parser_text(filePath)
         else:
+            print(f"File {filePath} is not a valid file type")
             return
         transcript["embedding"] = transcript.text.apply(
             self.embeddingModdel.get_embedding
         )
+
+        transcript["link"] = filePath
+
         self.db.insert(transcript)
         return

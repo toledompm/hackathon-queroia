@@ -45,7 +45,7 @@ async def search(query: str = ""):
     data = db.get()
     embeddings = data.embedding.apply(array)
     indexes = embeddingModdel.search(query, embeddings)
-    res = data.iloc[indexes].to_dict("records")
+    res = data.iloc[indexes].drop(columns=["embedding"]).to_dict("records")
 
     return {"results": res}
 

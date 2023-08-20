@@ -1,4 +1,5 @@
 import moviepy.editor as mp
+import numpy as np
 import openai
 import os
 import re
@@ -6,7 +7,9 @@ from pydub import AudioSegment
 import pandas as pd
 
 
-def __format_transcript__(segments: list[dict[str, str | float]], offset: int):
+def __format_transcript__(
+    segments: list[dict[str, str | float]], offset: int
+) -> list[dict[str, any]]:
     return [
         {
             "start": segment["start"] + offset,
@@ -29,7 +32,7 @@ def convert_mp4_to_mp3(video_path: str) -> str:
     return audio_clip_path
 
 
-def transcription_mp3_to_text(mp3_path: str) -> list[dict[str, str | float]]:
+def transcription_mp3_to_text(mp3_path: str) -> list[pd.DataFrame]:
     """
     transcription_mp3_to_text transcribes a mp3 file to text using OpenAI's API
     """
@@ -51,20 +54,19 @@ def transcription_mp3_to_text(mp3_path: str) -> list[dict[str, str | float]]:
         total_transcript += __format_transcript__(transcript["segments"], start / 1000)
         start += batch_in_milliseconds
         end += batch_in_milliseconds
-    return total_transcript
+    return __parsed_data_to_df__(total_transcript)
 
 
-def parser_text(file_path: str) -> list[dict[str, str | float]]:
+def parser_text(file_path: str) -> pd.DataFrame:
     """
     parser text to input format
     """
-    save_path = file_path[: file_path.rfind("/")]
-    parsead_text = []
+    parsed_text = []
 
     arq = open(file_path, "rb")
     text = arq.read().decode("utf-8")
     paragraph_regex = re.compile(r".+\n")
-    parsead_text = [
+    parsed_text = [
         {
             "text": [batch.group()],
             "start": [batch.start()],
@@ -73,13 +75,24 @@ def parser_text(file_path: str) -> list[dict[str, str | float]]:
         for batch in paragraph_regex.finditer(text)
     ]
 
-    indexes_small_batches = [idx for idx, batch in enumerate(parsead_text) if len(batch['text'][0]) < 50]
-    ok_batches = [idx for idx, batch in enumerate(parsead_text) if len(batch['text'][0]) >= 50]
+    return __parsed_data_to_df__(parsed_text)
+
+
+def __parsed_data_to_df__(data: list[dict[str, any]]) -> pd.DataFrame:
+    """
+    parsed_data_to_df converts the parsed data to a dataframe
+    """
+    indexes_small_batches = [
+        idx for idx, batch in enumerate(data) if len(batch["text"][0]) < 50
+    ]
+    ok_batches = [idx for idx, batch in enumerate(data) if len(batch["text"][0]) >= 50]
 
     for idx in indexes_small_batches:
-        idx_concat = idx+1 if idx+1 < len(parsead_text) else idx-1
-        parsead_text[idx_concat]['text'][0] += parsead_text[idx]['text'][0]
+        idx_concat = idx + 1 if idx + 1 < len(data) else idx - 1
+        data[idx_concat]["text"][0] += data[idx]["text"][0]
 
-    indexes_filtered = np.array(parsead_text)[list(set(ok_batches) - set(indexes_small_batches))]
+    indexes_filtered = np.array(data)[
+        list(set(ok_batches) - set(indexes_small_batches))
+    ]
     dfs = [pd.DataFrame(data=dic) for dic in indexes_filtered]
-    return dfs
+    return pd.concat(dfs, ignore_index=True)
